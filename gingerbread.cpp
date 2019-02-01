@@ -1,3 +1,5 @@
+// Gingerbread Man Chaos Theory using OpenGL
+// Cameron Moberg, cjm8713@
 #include <GL/glut.h>
 #include <iostream>
 
@@ -6,6 +8,14 @@ struct Point {
     int x = 0;
     int y = 0;
 };
+
+void gingerInit();
+
+void drawGinger(Point p);
+
+void drawGinger(Point p, int points);
+
+void gingerDisplay();
 
 const int INIT_WINDOW_WIDTH = 640.0;
 const int INIT_WINDOW_HEIGHT = 480.0;
@@ -48,7 +58,7 @@ void gingerDisplay() {
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-    glutInitWindowSize(640, 480);
+    glutInitWindowSize(INIT_WINDOW_WIDTH, INIT_WINDOW_HEIGHT);
     // glutInitWindowPosition(0,0);
     glutCreateWindow("Gingerbread Man");
     glutDisplayFunc(gingerDisplay);
