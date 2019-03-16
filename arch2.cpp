@@ -50,13 +50,20 @@ void drawPointed(float blx, float bly, float h, float w)
 }
 
 void drawOgee(float blx, float bly, float h, float w) {
-    drawRect(blx, bly, blx + 2 * w, bly - h);
+    drawRect(blx, bly, blx + 4 * w, bly - h);
 
-    drawArc(blx + w, bly - h, w, M_PI, -M_PI / 3.0);
-    drawArc(blx + w, bly - h, w, 0, M_PI / 3.0);
+    /*
+    drawArc(blx + w, bly - h, w, M_PI, -M_PI / 2.0);
+    drawArc(blx + w, bly - 3 * h, w, 3.0 * M_PI / 2.0, M_PI/2.0);
 
-    drawArc(blx, bly - h - (sqrt(3.0) * w), w, 5.0 * M_PI / 3.0, M_PI / 3.0);
-    drawArc(blx + 2.0 * w, bly - h - (sqrt(3.0) * w), w, M_PI, M_PI / 3.0);
+    drawArc(blx + 3.0 * w, bly - h, w, 0, M_PI / 2.0);
+    drawArc(blx + 3.0 * w, bly - 3 * h, w, 3.0 * M_PI / 2.0, -M_PI/2.0);
+    */
+    drawArc(blx + w, bly - h, w, M_PI, M_PI * 2.0);
+    drawArc(blx + w, bly - 3 * h, w, 3.0 * M_PI / 2.0, M_PI*2.0);
+
+    drawArc(blx + 3.0 * w, bly - h, w, 0, M_PI * 2.0);
+    drawArc(blx + 3.0 * w, bly - 3 * h, w, 3.0 * M_PI / 2.0, M_PI*2.0);
 }
 
 void drawCatenary(float x, float y, float a, float b)
@@ -91,8 +98,7 @@ void drawPointed(float blx, float bly)
 void drawOgee(float blx, float bly)
 {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    drawOgee(blx, bly, 320, 320);
-    drawOgee(blx + 60, bly, 320, 260);
+    drawOgee(blx - 100, bly, 200, 200);
     glutSwapBuffers();
 }
 
@@ -118,7 +124,6 @@ void main_loop_function() {
     getchar();
 
     drawCatenary(0, window_height / 2);
-    getchar();
 }
 
 void GL_Setup() {
