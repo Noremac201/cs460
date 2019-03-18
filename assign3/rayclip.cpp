@@ -8,26 +8,43 @@
 #include <cstdlib>
 #include <vector>
 
-using std::cout;
-using std::endl;
-
 const int WINDOW_WIDTH = 1440 / 2;
 const int WINDOW_HEIGHT = 900 / 2;
+
+int i = 0;
+float r = 0;
+float g = 0;
+float b = 0;
 
 struct Line {
     Point2 a;
     Point2 b;
 };
 
+void resetColor()
+{
+    r = g = b = 0 ;
+    i = 1;
+}
+
+void incrementColor()
+{
+    r = (i >> 16) & 0xFF;
+    g = (i >> 8) & 0xFF;
+    b = (i) & 0xFF;
+
+    i = i + (255*255*255 / 1000);
+}
+
 void drawLine2(Point2 v, Point2 u)
 {
     glBegin(GL_LINES);
     glVertex2f(v.x, v.y);
-    glColor3f(1,0,0);
+    glColor3ub(r,g,b);
     glVertex2f(u.x, u.y);
-    glColor3f(1,1,1);
     glEnd();
     glFlush();
+    incrementColor();
 }
 
 void drawBoundary(std::vector<Point2> pts) {
@@ -38,6 +55,46 @@ void drawBoundary(std::vector<Point2> pts) {
     }
     glEnd();
     glFlush();
+}
+
+std::vector<Point2> drawCircle(float cx, float cy, float r, int num_segments) 
+{ 
+    std::vector<Point2> pts;
+	float theta = 2 * 3.1415926 / float(num_segments); 
+	float tangetial_factor = tanf(theta);//calculate the tangential factor 
+
+	float radial_factor = cosf(theta);//calculate the radial factor 
+	
+	float x = r;//we start at angle = 0 
+
+	float y = 0; 
+    
+	glBegin(GL_LINE_LOOP); 
+	for(int ii = 0; ii < num_segments; ii++) 
+	{ 
+		glVertex2f(x + cx, y + cy);//output vertex 
+        pts.push_back(Point2(x + cx, y + cy));
+
+        
+		//calculate the tangential vector 
+		//remember, the radial vector is (x, y) 
+		//to get the tangential vector we flip those coordinates and negate one of them 
+
+		float tx = -y; 
+		float ty = x; 
+        
+		//add the tangential vector 
+
+		x += tx * tangetial_factor; 
+		y += ty * tangetial_factor; 
+        
+		//correct using the radial factor 
+
+		x *= radial_factor; 
+		y *= radial_factor; 
+	} 
+	glEnd(); 
+    return pts;
 }
 
 double Clip_line(const Point2& a, const Point2& b, const Point2 &c, const Point2 &d)
@@ -56,8 +113,7 @@ double Clip_line(const Point2& a, const Point2& b, const Point2 &c, const Point2
     return -100000;
 }
 
-std::vector<Line> getLines(std::vector<std::vector<Point2>> polys)
-{
+std::vector<Line> getLines(std::vector<std::vector<Point2>> polys) {
     std::vector<Line> lines;
     for (std::vector<Point2> poly : polys)
     {
@@ -73,35 +129,10 @@ std::vector<Line> getLines(std::vector<std::vector<Point2>> polys)
 
 }
 
-void part1() {
-    // Arbitrary Convex Polygon
-    std::vector<Point2> p;
-    p.push_back(Point2(100, 300));
-    p.push_back(Point2(100, 0));
-    p.push_back(Point2(450, 100));
-    p.push_back(Point2(400, 400));
-    drawBoundary(p);
-
-    std::vector<Point2> pIn;
-    pIn.push_back(Point2(150, 140));
-    pIn.push_back(Point2(200, 150));
-    pIn.push_back(Point2(200, 200));
-    pIn.push_back(Point2(150, 200));
-    drawBoundary(pIn);
-
-    std::vector<std::vector<Point2>> aa;
-    aa.push_back(p);
-    aa.push_back(pIn);
-    std::vector<Line> lines = getLines(aa);
-
-    Point2 a, b;
-    // arbitrary points
-    a = { 250, 250};
-    b = { 40, 135};
-
+void rayBouncer(Point2 a, Point2 b, std::vector<Line> lines)
+{
     for (int j = 0; j < 1000; j++)
     {
-        cout << "Iteration" << endl;
         double minT = 10000;
         Point2 u, v;
 
@@ -127,7 +158,6 @@ void part1() {
         }
         
         b = newB;
-        cout << "Selected: " << u.printable() << v.printable() << endl;
         Vector2 rray = b - a;
         Vector2 re = reflect(rray, u-v);
         Point2 zed = Point2(b.x + re.delta_x(), b.y + re.delta_y());
@@ -138,13 +168,121 @@ void part1() {
     }
 }
 
+void part1() {
+    // Arbitrary Convex Polygon
+    std::vector<Point2> p;
+    p.push_back(Point2(100, 300));
+    p.push_back(Point2(100, 0));
+    p.push_back(Point2(450, 100));
+    p.push_back(Point2(400, 265));
+    drawBoundary(p);
+
+    std::vector<std::vector<Point2>> aa;
+    aa.push_back(p);
+
+    Point2 a, b;
+
+    // arbitrary points
+    a = { 250, 250};
+    b = { 40, 135};
+
+    rayBouncer(a, b, getLines(aa));
+}
+
+void part2()
+{
+    // Arbitrary Convex Polygon
+    std::vector<Point2> p;
+    p.push_back(Point2(100, 300));
+    p.push_back(Point2(100, 0));
+    p.push_back(Point2(450, 100));
+    p.push_back(Point2(400, 400));
+    drawBoundary(p);
+
+    std::vector<Point2> pIn;
+    pIn.push_back(Point2(150, 140));
+    pIn.push_back(Point2(200, 150));
+    pIn.push_back(Point2(200, 200));
+    pIn.push_back(Point2(150, 200));
+    drawBoundary(pIn);
+
+    std::vector<Point2> pIn2;
+    pIn2.push_back(Point2(350, 140));
+    pIn2.push_back(Point2(400, 150));
+    pIn2.push_back(Point2(400, 200));
+    pIn2.push_back(Point2(350, 160));
+    drawBoundary(pIn2);
+
+    std::vector<Point2> pIn3;
+    pIn3.push_back(Point2(225, 140));
+    pIn3.push_back(Point2(300, 125));
+    pIn3.push_back(Point2(310, 150));
+    pIn3.push_back(Point2(290, 300));
+    drawBoundary(pIn3);
+
+    std::vector<std::vector<Point2>> aa;
+    aa.push_back(p);
+    aa.push_back(pIn);
+    aa.push_back(pIn2);
+    aa.push_back(pIn3);
+
+    Point2 a, b;
+    a = { 250, 250};
+    b = { 40, 135};
+
+    rayBouncer(a, b, getLines(aa));
+}
+
+void part3()
+{
+    // Arbitrary Convex Polygon
+    std::vector<Point2> p;
+    p.push_back(Point2(100, 300));
+    p.push_back(Point2(100, 0));
+    p.push_back(Point2(450, 100));
+    p.push_back(Point2(400, 400));
+    drawBoundary(p);
+
+    std::vector<std::vector<Point2>> aa;
+
+    std::vector<Point2> cr = drawCircle(300, 275, 50, 300);
+    std::vector<Point2> cr1 = drawCircle(125, 175, 24, 300);
+    std::vector<Point2> cr2 = drawCircle(410, 140, 14, 300);
+    std::vector<Point2> cr3 = drawCircle(200, 75, 65, 300);
+
+    aa.push_back(p);
+    aa.push_back(cr);
+    aa.push_back(cr1);
+    aa.push_back(cr2);
+    aa.push_back(cr3);
+
+    Point2 a, b;
+    // arbitrary points
+    a = { 250, 250};
+    b = { 40, 135};
+
+    rayBouncer(a, b, getLines(aa));
+}
+
 void display()
 {
     part1();
+    glutSwapBuffers();
+    glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
+    resetColor();
+    part2();
+    getchar();
+    glutSwapBuffers();
+    glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer (background)
+    resetColor();
+    part3();
+    getchar();
+    glutSwapBuffers();
 }
+
 void init(int *argc, char** argv) {
     glutInit(argc, argv);                 // Initialize GLUT
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);   // Set the window's initial width & height
     glutInitWindowPosition(0, 0); // Position the window's initial top-left corner
     glutCreateWindow("Graphics"); // Create a window with the given title
