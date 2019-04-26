@@ -1,0 +1,31 @@
+light -10 0 20 .6 .6 .6
+light 10 20 10 0.6 0.6 0.6
+light 0 0 10 0.6 0.6 0.6
+
+globalAmbient 0.2 0.2 0.2
+
+def Copper{
+           ambient 0.19125 0.0735 0.0225
+           diffuse 0.7038 0.27048 0.0828
+           specular 0.256777 0.137622 0.086014 specularExponent 12.8}
+def Gold{
+           ambient 0.24725 0.1995 0.0745
+           diffuse 0.75164 0.60648 0.22648
+           specular 0.628281 0.555802 0.366065 specularExponent 51.2}
+
+push
+translate -.5 .5 0
+scale 1 1 1
+use Gold sphere
+pop
+
+push 
+translate 0 0 0
+rotate -45 1 0 0
+scale .3 .3 2
+ambient 0.05 0.05 0.05
+diffuse 0.4 0.8 0.4
+specular 0.6 0.6 0.6
+specularExponent 12
+cylinder
+pop
